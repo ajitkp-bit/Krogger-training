@@ -1,0 +1,41 @@
+name: Create and merge PR from dev to qa
+
+on:
+  workflow_dispatch:
+
+jobs:
+  PromoteDevToQA:
+    runs-on: ubuntu-latest
+    env:
+      tenantId: ${{ secrets.TENANT_ID }}
+      clientId: ${{ secrets.CLIENT_ID }}
+      clientSecret: ${{ secrets.CLIENT_SECRET }}
+      qaWorkspaceId: ${{ vars.QA_WORKSPACE_ID }}
+      devWorkspaceId: ${{ vars.DEV_WORKSPACE_ID }}
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+        
+      - name: Update Dev workspace from Git
+        shell: pwsh
+        run: ./scripts/updateWorksapceFromGit.ps1 -targetEnv dev
+
+      - name: Create pull request and store PR number
+        id: create_pr
+        run: |
+          pr_url=$(gh pr create -B qa -H dev --title 'Automatic PR create' --body 'PR Created by GitHub Actions')
+          echo "PR URL: $pr_url"
+          pr_number=$(echo "$pr_url" | grep -oE '[0-9]+$')
+          echo "pr_number=$pr_number" >> $GITHUB_OUTPUT
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: Merge pull request
+        run: |
+          gh pr merge ${{ steps.create_pr.outputs.pr_number }} --merge --admin
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+
+      - name: Update QA workspace from Git
+        shell: pwsh
+        run: ./scripts/updateWorksapceFromGit.ps1 -targetEnv qa
