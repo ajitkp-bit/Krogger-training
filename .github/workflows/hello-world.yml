@@ -7,4 +7,4 @@ jobs:
     runs-on: ubuntu-latest  
     steps:  
       - run: echo "Hello, GitHub Actions!"
-      - run: echo "$(PRINT_VAR)"
+      - run: echo "${{ vars.PRINT_VAR }}"
