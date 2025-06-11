@@ -6,4 +6,5 @@ jobs:
   greet:  
     runs-on: ubuntu-latest  
     steps:  
-      - run: echo "Hello, GitHub Actions!" 
+      - run: echo "Hello, GitHub Actions!"
+      - run: echo "$(PRINT_VAR)"
