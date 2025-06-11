@@ -1,10 +1,14 @@
 name: Hello World  
-on:
-  workflow_dispatch:
+on: [push,pull_request]
+  #workflow_dispatch:
 
 jobs:  
   greet:  
     runs-on: ubuntu-latest  
+    
+    # tie this job to your QA-ENV environment
+    
+    environment: QA-ENV
     steps:  
       - run: echo "Hello, GitHub Actions!"
-      - run: echo "$(PRINT_VAR)"
+      - run: echo "${{ vars.PRINT_VAR }}"
